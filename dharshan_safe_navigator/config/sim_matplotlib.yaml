@@ -1,0 +1,47 @@
+# Input topics handled/muxed.
+# For each topic:
+# - name: name identifier to select the topic
+# - topic   : input topic of geometry_msgs::Twist type
+# - timeout : timeout in seconds to start discarding old messages, and use 0.0 speed instead
+# - priority: priority in the range [0, 255]; the higher the more priority over other topics
+/**:
+  ros__parameters:
+    
+    # Publication rate for zero twist
+    rate: 30.0
+
+    corridor_office:
+      xlim: [-15.0, 15.0]
+      ylim: [-15.0, 15.0]
+    
+    office:
+      xlim: [-14.0, 14.0]
+      ylim: [-10.0, 10.0]
+    
+    simple_maze:
+      xlim: [-5.0, 5.0]
+      ylim: [-5.0, 5.0]
+
+    house:
+      xlim: [-8.0, 8.0]
+      ylim: [-6.0, 6.0]
+
+    closed_corridor:
+      xlim: [-2.5, 2.5]
+      ylim: [-2.5, 2.5]
+
+    extended_house:
+      xlim: [-8.0, 8.0]
+      ylim: [-0.5, 5.5]
+
+    complex_maze:
+      xlim: [-2.5, 2.5]
+      ylim: [-2.5, 2.5]
+    
+    turtlebot3_world:
+      xlim: [-3, 3]
+      ylim: [-3, 3]
+    
+    lab:
+      xlim: [-0.5, 5.5]
+      ylim: [-0.5, 5.5]

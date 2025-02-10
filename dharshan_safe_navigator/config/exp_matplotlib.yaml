@@ -1,0 +1,15 @@
+# Input topics handled/muxed.
+# For each topic:
+# - name: name identifier to select the topic
+# - topic   : input topic of geometry_msgs::Twist type
+# - timeout : timeout in seconds to start discarding old messages, and use 0.0 speed instead
+# - priority: priority in the range [0, 255]; the higher the more priority over other topics
+/**:
+  ros__parameters:
+    
+    # Publication rate for zero twist
+    rate: 30.0
+        
+    lab:
+      xlim: [-0.5, 5.5]
+      ylim: [-0.5, 5.5]
