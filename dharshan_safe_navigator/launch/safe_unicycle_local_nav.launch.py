@@ -14,11 +14,11 @@ def generate_launch_description():
     use_sim_time = DeclareLaunchArgument('use_sim_time', default_value='true')
     ld.add_action(use_sim_time)
     
-    pose_topic = DeclareLaunchArgument('pose_topic', default_value='pose', description='Pose topic of the robot')
-    ld.add_action(pose_topic)
+    goal_pose_topic = DeclareLaunchArgument('goal_pose_topic', default_value='goal_pose', description='Pose topic of the robot')
+    ld.add_action(goal_pose_topic)
 
-    laser_topic = DeclareLaunchArgument('laser_topic', default_value='scan', description='Laser topic of the robot')
-    ld.add_action(laser_topic)
+    scan_topic = DeclareLaunchArgument('scan_topic', default_value='scan', description='Laser topic of the robot')
+    ld.add_action(scan_topic)
 
     cmd_vel_topic = DeclareLaunchArgument('cmd_vel_topic', default_value='cmd_vel', description='Command velocity topic of the robot')
     ld.add_action(cmd_vel_topic)
@@ -32,9 +32,11 @@ def generate_launch_description():
             {'use_sim_time': LaunchConfiguration('use_sim_time')},
         ],
         remappings=[
-            ('pose', LaunchConfiguration('pose_topic')),
-            ('scan', LaunchConfiguration('laser_topic')),
+            ('goal_pose', LaunchConfiguration('goal_pose_topic')),
+            ('scan', LaunchConfiguration('scan_topic')),
             ('cmd_vel', LaunchConfiguration('cmd_vel_topic')),
+            ('/tf', 'tf'),
+            ('/tf_static', 'tf_static'),
             ],
         output='screen',
         emulate_tty=True,

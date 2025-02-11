@@ -55,7 +55,7 @@ def generate_launch_description():
             'front_laser_enable': f'{True}',
             'rear_laser_enable': f'{False}',
             '3d_laser_enable': f'{False}',
-            'front_camera_enable': f'{True}',
+            'front_camera_enable': f'{False}',
             'imu_enable': f'{False}'
         },
     )

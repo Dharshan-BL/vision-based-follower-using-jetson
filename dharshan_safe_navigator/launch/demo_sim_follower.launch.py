@@ -18,8 +18,8 @@ def generate_launch_description():
     world = DeclareLaunchArgument('world', default_value='empty', description='World name')
     ld.add_action(world)
     
-    pose_topic = DeclareLaunchArgument('pose_topic', default_value='pose', description='Pose topic of the robot')
-    ld.add_action(pose_topic)
+    goal_pose_topic = DeclareLaunchArgument('goal_pose_topic', default_value='goal_pose', description='Pose topic of the robot')
+    ld.add_action(goal_pose_topic)
 
     sim_environment_launch = GroupAction(
         actions=[
@@ -52,12 +52,12 @@ def generate_launch_description():
         launch_configurations={
             'use_sim_time': LaunchConfiguration('use_sim_time'),
             'namespace': LaunchConfiguration('namespace'),
-            'pose_topic': LaunchConfiguration('pose_topic'),
-            'laser_topic': f'front_laser/scan',
+            'goal_pose_topic': LaunchConfiguration('goal_pose_topic'),
+            'scan_topic': f'front_laser/scan',
             'cmd_vel_topic': f'cmd_vel_ctrl',
         },
     )
-    ld.add_action(safe_unicycle_local_nav_launch)
+    # ld.add_action(safe_unicycle_local_nav_launch)
 
 
     return ld
