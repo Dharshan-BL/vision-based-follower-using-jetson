@@ -63,8 +63,9 @@ class SafeUnicycleControl(Node):
         self.lin_gain = 0.5
         self.ang_gain = 1.0
         self.start_time = None
-        self.look_around_speed = 0.5
-        self.look_around_cycle_time = 0.5
+        self.wait_time = 0.5
+        self.look_around_speed = 0.5        
+        self.look_around_cycle_time = 2.0
 
         # goal and obstacle positions
         self.goal_pose_x = None
@@ -206,16 +207,19 @@ class SafeUnicycleControl(Node):
         
         else:
             print("Looking around")
+            self.cmd_vel.linear.x = 0.0
             if self.start_time is None:
                 self.start_time = time.time()
 
             if time.time() - self.start_time > self.look_around_cycle_time:
-                self.look_around_speed = -self.look_around_speed
-                self.start_time = time.time()
+                
+                self.cmd_vel.angular.z = 0.0
 
-            self.cmd_vel.linear.x = 0.0
-            self.cmd_vel.angular.z = self.look_around_speed
-        
+                if time.time() - self.start_time > self.wait_time + self.look_around_cycle_time:
+                    self.look_around_speed = -self.look_around_speed
+                    self.start_time = time.time()
+                    self.cmd_vel.angular.z = self.look_around_speed
+            
         self.cmd_vel_pub.publish(self.cmd_vel)
         
 
