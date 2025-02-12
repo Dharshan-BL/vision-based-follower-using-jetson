@@ -51,7 +51,7 @@ def generate_launch_description():
         launch_configurations={
             'use_sim_time': LaunchConfiguration('use_sim_time'),
             'namespace': LaunchConfiguration('namespace'),
-            'goal_pose_topic': LaunchConfiguration('goal_pose_topic'),
+            'goal_pose_topic': 'obj_pose',
             'scan_topic': f'front_laser/scan',
             'cmd_vel_topic': f'ctrl/cmd_vel',
         },

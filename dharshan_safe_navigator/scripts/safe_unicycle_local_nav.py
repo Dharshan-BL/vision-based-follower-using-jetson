@@ -59,6 +59,10 @@ class SafeUnicycleControl(Node):
         self.base_link_frame = self.get_parameter('base_link_frame').value
         self.scan_frame = self.get_parameter('scan_frame').value                    
 
+        # gains
+        self.lin_gain = 0.5
+        self.ang_gain = 3.0
+
         # goal and obstacle positions
         self.goal_pose_x = None
         self.goal_pose_y = None
@@ -160,7 +164,7 @@ class SafeUnicycleControl(Node):
         self.cmd_vel = Twist()  
         if self.goal_pose_x is not None and self.goal_pose_y is not None:
             print(f"Detected you at: {self.goal_pose_x}, {self.goal_pose_y}")
-            
+
             if self.obstacle_x is not None and self.obstacle_y is not None:           
                 gradient = -APF_tools.gradient_navigation_potential(
                     position=[0.0, 0.0],
