@@ -65,7 +65,7 @@ class SafeUnicycleControl(Node):
         self.lin_gain = 0.5
         self.ang_gain = 1.0
         self.start_time = None
-        self.wait_time = 0.5
+        self.look_around = True
         self.look_around_speed = 1.0        
         self.look_around_cycle_time = 5.0
 
@@ -168,7 +168,7 @@ class SafeUnicycleControl(Node):
             
     def safe_control(self):
         self.cmd_vel = Twist()  
-        self.look_around = True
+        # self.look_around = True
         if (self.goal_pose_x is not None and self.goal_pose_y is not None):
             if self.goal_pose_x != 0.0 or self.goal_pose_y != 0.0:
                 distance_to_goal = np.sqrt(self.goal_pose_x**2 + self.goal_pose_y**2)
