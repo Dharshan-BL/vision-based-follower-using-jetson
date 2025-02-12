@@ -169,53 +169,51 @@ class SafeUnicycleControl(Node):
     def safe_control(self):
         self.cmd_vel = Twist()  
         self.look_around = True
-        if ((self.goal_pose_x is not None and self.goal_pose_y is not None) and
-            self.goal_pose_x != 0.0 or self.goal_pose_y != 0.0):
+        if (self.goal_pose_x is not None and self.goal_pose_y is not None):
+            if self.goal_pose_x != 0.0 or self.goal_pose_y != 0.0:
+                distance_to_goal = np.sqrt(self.goal_pose_x**2 + self.goal_pose_y**2)
+                if distance_to_goal > self.goal_threshold:
+                    self.look_around = False
+                    self.start_time = None
+                    print(f"Detected you at: {self.goal_pose_x}, {self.goal_pose_y}")
 
-            distance_to_goal = np.sqrt(self.goal_pose_x**2 + self.goal_pose_y**2)
-
-            if distance_to_goal > self.goal_threshold:
-                self.look_around = False
-                self.start_time = None
-                print(f"Detected you at: {self.goal_pose_x}, {self.goal_pose_y}")
-
-                # if self.obstacle_x is not None and self.obstacle_y is not None:           
-                #     gradient = -APF_tools.gradient_navigation_potential(
-                #         position=[0.0, 0.0],
-                #         goal=[self.goal_pose_x, self.goal_pose_y],
-                #         obstacle=[self.obstacle_x, self.obstacle_y],
-                #         attractive_strength=1.0,
-                #         repulsive_tolerance=self.safe_distance,
-                #         repulsive_threshold_decay=1.0
-                #     )
-                # else:
-                gradient = -APF_tools.gradient_navigation_potential_attractive(
-                    position=[0.0, 0.0],
-                    goal=[self.goal_pose_x, self.goal_pose_y],
-                    strength=1.0
-                )
-                
-                print(gradient)
-
-                lin_vel, ang_vel = unicycle_control_tools.unicycle_gradient_ctrl_2D(
-                    gradient=gradient,
-                    yaw=0.0,
-                    lin_gain=self.lin_gain,
-                    ang_gain=self.ang_gain
-                )
-                
-                if not np.isnan(lin_vel[0]) and not np.isnan(ang_vel[0]):
-                    lin_vel_x, ang_vel_z = unicycle_control_tools.scale_velocities(
-                        lin_vel=lin_vel[0],
-                        ang_vel=ang_vel[0],
-                        max_lin=self.max_linear_speed,
-                        max_ang=self.max_angular_speed
+                    # if self.obstacle_x is not None and self.obstacle_y is not None:           
+                    #     gradient = -APF_tools.gradient_navigation_potential(
+                    #         position=[0.0, 0.0],
+                    #         goal=[self.goal_pose_x, self.goal_pose_y],
+                    #         obstacle=[self.obstacle_x, self.obstacle_y],
+                    #         attractive_strength=1.0,
+                    #         repulsive_tolerance=self.safe_distance,
+                    #         repulsive_threshold_decay=1.0
+                    #     )
+                    # else:
+                    gradient = -APF_tools.gradient_navigation_potential_attractive(
+                        position=[0.0, 0.0],
+                        goal=[self.goal_pose_x, self.goal_pose_y],
+                        strength=1.0
                     )
-                    self.cmd_vel.linear.x = lin_vel_x
-                    self.cmd_vel.angular.z = ang_vel_z
+                    
+                    print(gradient)
 
-            else:
-                print("Goal reached")
+                    lin_vel, ang_vel = unicycle_control_tools.unicycle_gradient_ctrl_2D(
+                        gradient=gradient,
+                        yaw=0.0,
+                        lin_gain=self.lin_gain,
+                        ang_gain=self.ang_gain
+                    )
+                    
+                    if not np.isnan(lin_vel[0]) and not np.isnan(ang_vel[0]):
+                        lin_vel_x, ang_vel_z = unicycle_control_tools.scale_velocities(
+                            lin_vel=lin_vel[0],
+                            ang_vel=ang_vel[0],
+                            max_lin=self.max_linear_speed,
+                            max_ang=self.max_angular_speed
+                        )
+                        self.cmd_vel.linear.x = lin_vel_x
+                        self.cmd_vel.angular.z = ang_vel_z
+
+                else:
+                    print("Goal reached")
 
         
         if self.look_around:
