@@ -212,8 +212,9 @@ class SafeUnicycleControl(Node):
                 self.start_time = time.time()
 
             omega = 2* np.pi / self.look_around_cycle_time
-
-            self.cmd_vel.angular.z = self.look_around_speed * np.sin(omega * (time.time() - self.start_time) + np.pi/2)
+            t = time.time() - self.start_time
+            self.cmd_vel.angular.z = self.look_around_speed * np.sin(omega * t + np.pi/2)
+            print(omega, t, omega * t, self.cmd_vel.angular.z)
             
         self.cmd_vel_pub.publish(self.cmd_vel)
         
