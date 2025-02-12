@@ -45,7 +45,7 @@ class SafeUnicycleControl(Node):
             self.declare_parameter('base_link_frame', 'base_link')
             self.declare_parameter('scan_frame', 'front_scan')
             self.declare_parameter('max_linear_speed', 0.5)
-            self.declare_parameter('max_angular_speed', 2.0)
+            self.declare_parameter('max_angular_speed', 1.5)
         except Exception as e:
             pass
 
@@ -61,7 +61,7 @@ class SafeUnicycleControl(Node):
 
         # gains
         self.lin_gain = 0.5
-        self.ang_gain = 10.0
+        self.ang_gain = 1.0
 
         # goal and obstacle positions
         self.goal_pose_x = None
@@ -184,8 +184,8 @@ class SafeUnicycleControl(Node):
             lin_vel, ang_vel = unicycle_control_tools.unicycle_gradient_ctrl_2D(
                 gradient=gradient,
                 yaw=0.0,
-                lin_gain=1.0,
-                ang_gain=1.0
+                lin_gain=self.lin_gain,
+                ang_gain=self.ang_gain
             )
 
             
