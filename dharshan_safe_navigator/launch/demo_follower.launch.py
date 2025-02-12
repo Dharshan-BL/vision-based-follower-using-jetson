@@ -13,7 +13,7 @@ def generate_launch_description():
 
     namespace = DeclareLaunchArgument('namespace', default_value='jackal') 
     ld.add_action(namespace)
-    use_sim_time = DeclareLaunchArgument('use_sim_time', default_value='true')
+    use_sim_time = DeclareLaunchArgument('use_sim_time', default_value='false')
     ld.add_action(use_sim_time)
     world = DeclareLaunchArgument('world', default_value='empty', description='World name')
     ld.add_action(world)
@@ -21,11 +21,11 @@ def generate_launch_description():
     goal_pose_topic = DeclareLaunchArgument('goal_pose_topic', default_value='goal_pose', description='Pose topic of the robot')
     ld.add_action(goal_pose_topic)
 
-    sim_environment_launch = GroupAction(
+    plot_tools_launch = GroupAction(
         actions=[
             IncludeLaunchDescription(
                 PythonLaunchDescriptionSource(
-                    os.path.join(get_package_share_directory('dharshan_safe_navigator'), 'launch', 'sim_gazebo_jackal.launch.py')
+                    os.path.join(get_package_share_directory('dharshan_plot_tools'), 'launch', 'plot_scan.launch.py')
                 )
             )
         ],
@@ -33,11 +33,10 @@ def generate_launch_description():
         forwarding=False,
         launch_configurations={
             'use_sim_time': LaunchConfiguration('use_sim_time'),
-            'namespace':LaunchConfiguration('namespace'),
-            'world': LaunchConfiguration('world'),
+            'namespace': LaunchConfiguration('namespace'),
+            'scan_topic': f'front_laser/scan',
         },
     )
-    ld.add_action(sim_environment_launch)
 
     safe_unicycle_local_nav_launch = GroupAction(
         actions=[
@@ -57,7 +56,7 @@ def generate_launch_description():
             'cmd_vel_topic': f'cmd_vel_ctrl',
         },
     )
-    # ld.add_action(safe_unicycle_local_nav_launch)
+    ld.add_action(safe_unicycle_local_nav_launch)
 
 
     return ld

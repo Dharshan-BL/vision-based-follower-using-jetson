@@ -44,8 +44,8 @@ class SafeUnicycleControl(Node):
             self.declare_parameter('safe_distance', 0.3)
             self.declare_parameter('base_link_frame', 'base_link')
             self.declare_parameter('scan_frame', 'front_scan')
-            self.declare_parameter('max_linear_speed', 1.0)
-            self.declare_parameter('max_angular_speed', 1.5)
+            self.declare_parameter('max_linear_speed', 0.5)
+            self.declare_parameter('max_angular_speed', 0.8)
         except Exception as e:
             pass
 
@@ -150,8 +150,6 @@ class SafeUnicycleControl(Node):
                 self.obstacle_x = min_range * np.cos(min_angle)
                 self.obstacle_y = min_range * np.sin(min_angle)
         
-        print(f"Obstacle Position: {self.obstacle_x}, {self.obstacle_y}")
-    
     def __goal_pose_callback(self, msg : PoseStamped):
         if msg is not None:
             self.goal_pose_x = msg.pose.position.x
@@ -159,46 +157,47 @@ class SafeUnicycleControl(Node):
 
             
     def safe_control(self):
-        
-        if self.goal_pose_x is None or self.goal_pose_y is None:
-            return
-        
-        if self.obstacle_x is not None and self.obstacle_y is not None:           
-            gradient = -APF_tools.gradient_navigation_potential(
-                position=[0.0, 0.0],
-                goal=[self.goal_pose_x, self.goal_pose_y],
-                obstacle=[self.obstacle_x, self.obstacle_y],
-                attractive_strength=1.0,
-                repulsive_tolerance=self.safe_distance,
-                repulsive_threshold_decay=1.0
-            )
-        else:
-            gradient = -APF_tools.gradient_navigation_potential_attractive(
-                position=[0.0, 0.0],
-                goal=[self.goal_pose_x, self.goal_pose_y],
-                strength=1.0
+        self.cmd_vel = Twist()  
+        if self.goal_pose_x is not None and self.goal_pose_y is not None:
+            print(f"Detected you at: {self.goal_pose_x}, {self.goal_pose_y}")
+            
+            if self.obstacle_x is not None and self.obstacle_y is not None:           
+                gradient = -APF_tools.gradient_navigation_potential(
+                    position=[0.0, 0.0],
+                    goal=[self.goal_pose_x, self.goal_pose_y],
+                    obstacle=[self.obstacle_x, self.obstacle_y],
+                    attractive_strength=1.0,
+                    repulsive_tolerance=self.safe_distance,
+                    repulsive_threshold_decay=1.0
+                )
+            else:
+                gradient = -APF_tools.gradient_navigation_potential_attractive(
+                    position=[0.0, 0.0],
+                    goal=[self.goal_pose_x, self.goal_pose_y],
+                    strength=1.0
+                )
+
+            lin_vel, ang_vel = unicycle_control_tools.unicycle_gradient_ctrl_2D(
+                gradient=gradient,
+                yaw=0.0,
+                lin_gain=1.0,
+                ang_gain=1.0
             )
 
-        lin_vel, ang_vel = unicycle_control_tools.unicycle_gradient_ctrl_2D(
-            gradient=gradient,
-            yaw=0.0,
-            lin_gain=1.0,
-            ang_gain=1.0
-        )
-
-        cmd_vel = Twist()        
-        if not np.isnan(lin_vel[0]) and not np.isnan(ang_vel[0]):
-            lin_vel_x, ang_vel_z = unicycle_control_tools.scale_velocities(
-                lin_vel=lin_vel[0],
-                ang_vel=ang_vel[0],
-                max_lin=self.max_linear_speed,
-                max_ang=self.max_angular_speed
-            )
-            cmd_vel.linear.x = lin_vel_x
-            cmd_vel.angular.z = ang_vel_z
+            
+            if not np.isnan(lin_vel[0]) and not np.isnan(ang_vel[0]):
+                lin_vel_x, ang_vel_z = unicycle_control_tools.scale_velocities(
+                    lin_vel=lin_vel[0],
+                    ang_vel=ang_vel[0],
+                    max_lin=self.max_linear_speed,
+                    max_ang=self.max_angular_speed
+                )
+                self.cmd_vel.linear.x = lin_vel_x
+                self.cmd_vel.angular.z = ang_vel_z
         
-        print(f"Linear Velocity: {cmd_vel.linear.x}, Angular Velocity: {cmd_vel.angular.z}")
-        self.cmd_vel_pub.publish(cmd_vel)
+        
+        self.cmd_vel_pub.publish(self.cmd_vel)
+        
 
 def main(args=None):
     rclpy.init(args=args)
