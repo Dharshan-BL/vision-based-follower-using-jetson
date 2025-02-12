@@ -21,22 +21,22 @@ def generate_launch_description():
     goal_pose_topic = DeclareLaunchArgument('goal_pose_topic', default_value='goal_pose', description='Pose topic of the robot')
     ld.add_action(goal_pose_topic)
 
-    plot_tools_launch = GroupAction(
-        actions=[
-            IncludeLaunchDescription(
-                PythonLaunchDescriptionSource(
-                    os.path.join(get_package_share_directory('dharshan_plot_tools'), 'launch', 'plot_scan.launch.py')
-                )
-            )
-        ],
-        scoped=True,
-        forwarding=False,
-        launch_configurations={
-            'use_sim_time': LaunchConfiguration('use_sim_time'),
-            'namespace': LaunchConfiguration('namespace'),
-            'scan_topic': f'front_laser/scan',
-        },
-    )
+    # plot_tools_launch = GroupAction(
+    #     actions=[
+    #         IncludeLaunchDescription(
+    #             PythonLaunchDescriptionSource(
+    #                 os.path.join(get_package_share_directory('dharshan_plot_tools'), 'launch', 'plot_scan.launch.py')
+    #             )
+    #         )
+    #     ],
+    #     scoped=True,
+    #     forwarding=False,
+    #     launch_configurations={
+    #         'use_sim_time': LaunchConfiguration('use_sim_time'),
+    #         'namespace': LaunchConfiguration('namespace'),
+    #         'scan_topic': f'front_laser/scan',
+    #     },
+    # )
 
     safe_unicycle_local_nav_launch = GroupAction(
         actions=[
