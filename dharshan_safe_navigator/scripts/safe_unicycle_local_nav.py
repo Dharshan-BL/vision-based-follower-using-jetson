@@ -204,12 +204,14 @@ class SafeUnicycleControl(Node):
                 self.cmd_vel.angular.z = ang_vel_z
         
         else:
-
+            print("Looking around")
             if self.start_time is None:
                 self.start_time = time.time()
 
             if time.time() - self.start_time > self.look_around_cycle_time:
                 self.look_around_speed = -self.look_around_speed
+                self.start_time = time.time()
+
             self.cmd_vel.linear.x = 0.0
             self.cmd_vel.angular.z = self.look_around_speed
         
