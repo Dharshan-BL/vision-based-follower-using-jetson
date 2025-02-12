@@ -62,6 +62,7 @@ class SafeUnicycleControl(Node):
         # gains
         self.lin_gain = 0.5
         self.ang_gain = 1.0
+        self.start_time = None
         self.look_around_speed = 0.5
         self.look_around_cycle_time = 0.5
 
