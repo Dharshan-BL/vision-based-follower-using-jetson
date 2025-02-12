@@ -166,7 +166,8 @@ class SafeUnicycleControl(Node):
             
     def safe_control(self):
         self.cmd_vel = Twist()  
-        if self.goal_pose_x is not None and self.goal_pose_y is not None:
+        if ((self.goal_pose_x is not None and self.goal_pose_y is not None) or
+            self.goal_pose_x != 0.0 or self.goal_pose_y != 0.0):
             self.start_time = None
             print(f"Detected you at: {self.goal_pose_x}, {self.goal_pose_y}")
 
