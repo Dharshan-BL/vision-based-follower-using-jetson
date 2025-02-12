@@ -73,10 +73,11 @@ class PoseEstimatePublisher(Node):
 
         detections = msg.detections
         self.obj_pose = PoseStamped()
+        self.obj_pose.header = msg.header
+        self.obj_pose.header.frame_id = "base_link"
         if detections:
             for detection in detections:
                 if detection.class_name == "dharshan" and detection.score > self.score_threshold:
-                    self.obj_pose.header = msg.header
                     self.obj_pose.pose.position.x = detection.bbox3d.center.position.x
                     self.obj_pose.pose.position.y = detection.bbox3d.center.position.y
                     self.obj_pose.pose.position.z = detection.bbox3d.center.position.z
