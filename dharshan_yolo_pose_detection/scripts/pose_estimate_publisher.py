@@ -37,7 +37,7 @@ class PoseEstimatePublisher(Node):
             self.declare_parameter('queue_size', 10)
             self.declare_parameter('timeout', 0.04)
             self.declare_parameter('rate', 10.0)
-            self.declare_parameter('score_threshold', 0.85)
+            self.declare_parameter('score_threshold', 0.75)
         except Exception as e:
             pass
 

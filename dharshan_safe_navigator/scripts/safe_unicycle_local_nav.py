@@ -8,7 +8,7 @@
 # Created on: February 11, 2025
 #=====================================================================================================================
 
-from threading import Lock
+import time
 import numpy as np
 
 import rclpy
@@ -62,6 +62,8 @@ class SafeUnicycleControl(Node):
         # gains
         self.lin_gain = 0.5
         self.ang_gain = 1.0
+        self.look_around_speed = 0.5
+        self.look_around_cycle_time = 0.5
 
         # goal and obstacle positions
         self.goal_pose_x = None
@@ -163,23 +165,26 @@ class SafeUnicycleControl(Node):
     def safe_control(self):
         self.cmd_vel = Twist()  
         if self.goal_pose_x is not None and self.goal_pose_y is not None:
+            self.start_time = None
             print(f"Detected you at: {self.goal_pose_x}, {self.goal_pose_y}")
 
-            if self.obstacle_x is not None and self.obstacle_y is not None:           
-                gradient = -APF_tools.gradient_navigation_potential(
-                    position=[0.0, 0.0],
-                    goal=[self.goal_pose_x, self.goal_pose_y],
-                    obstacle=[self.obstacle_x, self.obstacle_y],
-                    attractive_strength=1.0,
-                    repulsive_tolerance=self.safe_distance,
-                    repulsive_threshold_decay=1.0
-                )
-            else:
-                gradient = -APF_tools.gradient_navigation_potential_attractive(
-                    position=[0.0, 0.0],
-                    goal=[self.goal_pose_x, self.goal_pose_y],
-                    strength=1.0
-                )
+            # if self.obstacle_x is not None and self.obstacle_y is not None:           
+            #     gradient = -APF_tools.gradient_navigation_potential(
+            #         position=[0.0, 0.0],
+            #         goal=[self.goal_pose_x, self.goal_pose_y],
+            #         obstacle=[self.obstacle_x, self.obstacle_y],
+            #         attractive_strength=1.0,
+            #         repulsive_tolerance=self.safe_distance,
+            #         repulsive_threshold_decay=1.0
+            #     )
+            # else:
+            gradient = -APF_tools.gradient_navigation_potential_attractive(
+                position=[0.0, 0.0],
+                goal=[self.goal_pose_x, self.goal_pose_y],
+                strength=1.0
+            )
+            
+            print(gradient)
 
             lin_vel, ang_vel = unicycle_control_tools.unicycle_gradient_ctrl_2D(
                 gradient=gradient,
@@ -187,7 +192,6 @@ class SafeUnicycleControl(Node):
                 lin_gain=self.lin_gain,
                 ang_gain=self.ang_gain
             )
-
             
             if not np.isnan(lin_vel[0]) and not np.isnan(ang_vel[0]):
                 lin_vel_x, ang_vel_z = unicycle_control_tools.scale_velocities(
@@ -199,6 +203,15 @@ class SafeUnicycleControl(Node):
                 self.cmd_vel.linear.x = lin_vel_x
                 self.cmd_vel.angular.z = ang_vel_z
         
+        else:
+
+            if self.start_time is None:
+                self.start_time = time.time()
+
+            if time.time() - self.start_time > self.look_around_cycle_time:
+                self.look_around_speed = -self.look_around_speed
+            self.cmd_vel.linear.x = 0.0
+            self.cmd_vel.angular.z = self.look_around_speed
         
         self.cmd_vel_pub.publish(self.cmd_vel)
         
