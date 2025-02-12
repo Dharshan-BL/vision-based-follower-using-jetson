@@ -1,7 +1,8 @@
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, OpaqueFunction
+from launch.actions import DeclareLaunchArgument, GroupAction, IncludeLaunchDescription
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
+from launch.launch_description_sources import PythonLaunchDescriptionSource
 from ament_index_python.packages import get_package_share_directory
 import os
 
@@ -22,6 +23,28 @@ def generate_launch_description():
 
     cmd_vel_topic = DeclareLaunchArgument('cmd_vel_topic', default_value='cmd_vel', description='Command velocity topic of the robot')
     ld.add_action(cmd_vel_topic)
+
+    yolo_3d_launch = GroupAction(
+        actions=[
+            IncludeLaunchDescription(
+                PythonLaunchDescriptionSource(
+                    os.path.join(
+                        get_package_share_directory('dharshan_yolo_pose_detection'),
+                        'launch',
+                        'yolo_3d_detection.launch.py'
+                    )
+                )
+            ),
+        ],
+        scoped=True,
+        forwarding=False,
+        launch_configurations={
+            'namespace': LaunchConfiguration('namespace'),
+            'use_sim_time': LaunchConfiguration('use_sim_time'),
+        }
+    )
+    ld.add_action(yolo_3d_launch)        
+
 
     safe_unicycle_local_nav_node = Node(
         package='dharshan_yolo_pose_detection',
