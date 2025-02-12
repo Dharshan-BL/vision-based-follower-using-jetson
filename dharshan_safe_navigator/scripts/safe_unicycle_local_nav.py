@@ -45,7 +45,7 @@ class SafeUnicycleControl(Node):
             self.declare_parameter('base_link_frame', 'base_link')
             self.declare_parameter('scan_frame', 'front_scan')
             self.declare_parameter('max_linear_speed', 0.5)
-            self.declare_parameter('max_angular_speed', 0.8)
+            self.declare_parameter('max_angular_speed', 2.0)
         except Exception as e:
             pass
 
@@ -61,7 +61,7 @@ class SafeUnicycleControl(Node):
 
         # gains
         self.lin_gain = 0.5
-        self.ang_gain = 3.0
+        self.ang_gain = 10.0
 
         # goal and obstacle positions
         self.goal_pose_x = None
