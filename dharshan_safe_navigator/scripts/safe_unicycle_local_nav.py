@@ -64,7 +64,7 @@ class SafeUnicycleControl(Node):
         self.ang_gain = 1.0
         self.start_time = None
         self.wait_time = 0.5
-        self.look_around_speed = 0.5        
+        self.look_around_speed = 1.0        
         self.look_around_cycle_time = 5.0
 
         # goal and obstacle positions
