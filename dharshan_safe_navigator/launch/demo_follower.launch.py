@@ -53,7 +53,7 @@ def generate_launch_description():
             'namespace': LaunchConfiguration('namespace'),
             'goal_pose_topic': LaunchConfiguration('goal_pose_topic'),
             'scan_topic': f'front_laser/scan',
-            'cmd_vel_topic': f'cmd_vel_ctrl',
+            'cmd_vel_topic': f'ctrl/cmd_vel',
         },
     )
     ld.add_action(safe_unicycle_local_nav_launch)
