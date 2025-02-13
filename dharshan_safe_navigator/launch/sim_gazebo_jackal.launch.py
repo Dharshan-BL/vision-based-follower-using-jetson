@@ -55,11 +55,30 @@ def generate_launch_description():
             'front_laser_enable': f'{True}',
             'rear_laser_enable': f'{False}',
             '3d_laser_enable': f'{False}',
-            'front_camera_enable': f'{False}',
+            'front_camera_enable': f'{True}',
             'imu_enable': f'{False}'
         },
     )
     ld.add_action(jackal_launch)
+
+    goal_launch = GroupAction(
+        actions=[
+            IncludeLaunchDescription(
+                PythonLaunchDescriptionSource(
+                    os.path.join(get_package_share_directory('dharshan_safe_navigator'), 'launch', 'goal.launch.py')
+                ),
+            ),
+        ],
+        scoped=True,
+        forwarding=False,
+        launch_configurations={
+            'use_sim_time': LaunchConfiguration('use_sim_time'),
+            'x': '5.0',
+            'y': '0.0', 
+            'world': LaunchConfiguration('world'),    
+        },
+    )
+    ld.add_action(goal_launch)
 
     jackal_teleop_launch = GroupAction(
         actions=[

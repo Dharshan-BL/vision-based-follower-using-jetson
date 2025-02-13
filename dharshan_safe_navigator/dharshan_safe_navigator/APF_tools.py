@@ -153,19 +153,24 @@ def gradient_navigation_potential_repulsive(position, obstacle, tolerance=0.0, t
 def gradient_navigation_potential(position, goal, obstacle, attractive_strength=1.0, repulsive_tolerance=0.0, repulsive_threshold_decay=1.0):
 
     attractive_potential = navigation_potential_attractive(position, goal, strength=attractive_strength)
-    attractive_potential = np.reshape(attractive_potential, (-1, 1))
+  
+    # attractive_potential = np.reshape(attractive_potential, (-1, 1))
+  
     attractive_gradient = gradient_navigation_potential_attractive(position, goal, strength=attractive_strength)
-
+  
     repulsive_potential = navigation_potential_repulsive(
         position, 
         obstacle,
         tolerance=repulsive_tolerance, 
         threshold_decay=repulsive_threshold_decay
         )
-    repulsive_potential = np.reshape(repulsive_potential, (-1, 1))
+    # repulsive_potential = np.reshape(repulsive_potential, (-1, 1))
+    # print(" after repulsive_potential", repulsive_potential)
     repulsive_gradient = gradient_navigation_potential_repulsive(position, obstacle,
                             tolerance=repulsive_tolerance, threshold_decay=repulsive_threshold_decay)
-
-    gradient = attractive_gradient*repulsive_potential+attractive_potential*repulsive_gradient
-    
+  
+    attractive_side = attractive_gradient*repulsive_potential
+    repulsive_side = attractive_potential*repulsive_gradient
+    gradient = [attractive_side[0]+repulsive_side[0], attractive_side[1]+repulsive_side[1]]
+    gradient = np.array(gradient)
     return gradient

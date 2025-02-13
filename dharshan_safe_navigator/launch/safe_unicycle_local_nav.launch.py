@@ -33,6 +33,7 @@ def generate_launch_description():
         ],
         remappings=[
             ('goal_pose', LaunchConfiguration('goal_pose_topic')),
+            ('odom', 'odom/filtered'),
             ('scan', LaunchConfiguration('scan_topic')),
             ('cmd_vel', LaunchConfiguration('cmd_vel_topic')),
             ('/tf', 'tf'),
