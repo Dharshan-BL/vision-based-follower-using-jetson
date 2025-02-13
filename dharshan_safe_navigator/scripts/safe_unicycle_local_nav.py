@@ -48,7 +48,7 @@ class SafeUnicycleControl(Node):
             self.declare_parameter('scan_frame', 'front_scan')
             self.declare_parameter('max_linear_speed', 0.5)
             self.declare_parameter('max_angular_speed', 1.5)
-            self.declare_parameter('goal_threshold', 2.5)
+            self.declare_parameter('goal_threshold', 0.5)
         except Exception as e:
             pass
 
