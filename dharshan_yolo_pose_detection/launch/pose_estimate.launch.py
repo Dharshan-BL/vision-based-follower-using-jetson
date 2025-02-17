@@ -24,6 +24,14 @@ def generate_launch_description():
     cmd_vel_topic = DeclareLaunchArgument('cmd_vel_topic', default_value='cmd_vel', description='Command velocity topic of the robot')
     ld.add_action(cmd_vel_topic)
 
+    default_yolo_model = os.path.join(
+        get_package_share_directory('dharshan_yolo_pose_detection'),
+        'config',
+        'yolov11_100_dharshan.pt'
+    )
+    yolo_model = DeclareLaunchArgument('yolo_model', default_value=default_yolo_model)
+    ld.add_action(yolo_model)
+    
     yolo_3d_launch = GroupAction(
         actions=[
             IncludeLaunchDescription(
@@ -41,6 +49,7 @@ def generate_launch_description():
         launch_configurations={
             'namespace': LaunchConfiguration('namespace'),
             'use_sim_time': LaunchConfiguration('use_sim_time'),
+            'yolo_model': LaunchConfiguration('yolo_model'),
         }
     )
     ld.add_action(yolo_3d_launch)        
