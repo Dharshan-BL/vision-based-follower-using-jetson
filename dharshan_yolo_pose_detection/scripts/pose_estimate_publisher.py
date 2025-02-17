@@ -13,6 +13,7 @@ import numpy as np
 
 import rclpy
 from rclpy.qos import QoSProfile, ReliabilityPolicy
+from rclpy.callback_groups import MutuallyExclusiveCallbackGroup
 from rclpy.node import Node
 from rclpy.executors import MultiThreadedExecutor
 
@@ -68,7 +69,7 @@ class PoseEstimatePublisher(Node):
         # # msg to be published
         self.obj_pose = PoseStamped()
 
-        self.create_timer(1.0 / self.rate, self.__publish_obj_pose)
+        self.create_timer(1.0 / self.rate, self.__publish_obj_pose, callback_group=MutuallyExclusiveCallbackGroup())
     
                 
     def __detections_callback(self, msg: DetectionArray):
@@ -79,6 +80,7 @@ class PoseEstimatePublisher(Node):
         if detections:
             for detection in detections:
                 if detection.class_name == "dharshan" and detection.score > self.score_threshold:
+                    print(f"Detected object with score:({self.score_threshold}) ", detection.score)
                     self.obj_pose.pose.position.x = detection.bbox3d.center.position.x
                     self.obj_pose.pose.position.y = detection.bbox3d.center.position.y
                     self.obj_pose.pose.position.z = detection.bbox3d.center.position.z
@@ -86,6 +88,7 @@ class PoseEstimatePublisher(Node):
                     break
 
     def __publish_obj_pose(self):
+        print("publishing obj pose")
         self.obj_pose_pub.publish(self.obj_pose)
    
 
