@@ -311,6 +311,7 @@ class SafeUnicycleControl(Node):
                         k_lin=1.0,
                         k_ang=1.0
                     )
+                    lin_vel = 0.0
 
                     
                 print("------BEFORE:")
