@@ -44,11 +44,11 @@ class SafeUnicycleControl(Node):
             self.declare_parameter('queue_size', 10)
             self.declare_parameter('timeout', 0.04)
             self.declare_parameter('rate', 10.0)
-            self.declare_parameter('safe_distance', 0.3)
+            self.declare_parameter('safe_distance', 0.1)
             self.declare_parameter('scan_frame', 'front_scan')
             self.declare_parameter('max_linear_speed', 0.5)
             self.declare_parameter('max_angular_speed', 1.5)
-            self.declare_parameter('goal_threshold', 0.5)
+            self.declare_parameter('goal_threshold', 2.0)
         except Exception as e:
             pass
 
@@ -173,7 +173,6 @@ class SafeUnicycleControl(Node):
 
                 if self.T_scan_to_target_frame is not None:                
                     ranges = np.array(avg_laser_data.ranges)
-                    print("min range: ", np.min(ranges), "and min index: ", np.argmin(ranges))
                     min_range = np.inf# self.target_frame = 'base_link'
                     min_index = 0
                     for i in range(len(ranges)):
@@ -199,14 +198,11 @@ class SafeUnicycleControl(Node):
                                 min_range = new_range
                                 min_index = i
                     
-                    print(f"Min range: {min_range} at index: {min_index}")
                     if not np.isinf(min_range):
                         min_angle = avg_laser_data.angle_min + min_index * avg_laser_data.angle_increment
                         self.obstacle_x = min_range * np.cos(min_angle)
                         self.obstacle_y = min_range * np.sin(min_angle)
-                        print(f"Obstacle: {self.obstacle_x}, {self.obstacle_y}")
             
-
     def __scan_callback(self, msg: LaserScan): 
         if self.target_frame is not None:
             try:
@@ -220,8 +216,6 @@ class SafeUnicycleControl(Node):
                 self.get_logger().info(f"Waiting for transform: {e}")
         
         self.laser_queue.append((msg, time.time()))
-               
-        
 
     def __odom_callback(self, msg : Odometry):
         if self.target_frame is not None:
@@ -254,19 +248,19 @@ class SafeUnicycleControl(Node):
         if ((self.goal_pose_x is not None and self.goal_pose_y is not None)):
             
             distance_to_goal = np.sqrt((self.goal_pose_x - self.robot_pose_x)**2 + (self.goal_pose_y - self.robot_pose_y)**2)
-            print(f"~~~~~Distance to goal: {distance_to_goal}")
-            print(f"~~~~~Obstacle: {self.obstacle_x}, {self.obstacle_y}")
+            print(f"~~~~~{self.goal_threshold}Distance to goal: {distance_to_goal}")
             if distance_to_goal > self.goal_threshold:
                 self.start_time = None
                 self.queue_lock.acquire()
+                print(f"~~~~~Obstacle: {self.obstacle_x}, {self.obstacle_y}")
                 if self.obstacle_x is not None and self.obstacle_y is not None:           
                     gradient = -APF_tools.gradient_navigation_potential(
                         position=[self.robot_pose_x, self.robot_pose_y],
                         goal=[self.goal_pose_x, self.goal_pose_y],
                         obstacle=[self.obstacle_x, self.obstacle_y],
                         attractive_strength=1.0,
-                        repulsive_tolerance=0.0,
-                        repulsive_threshold_decay=1.0
+                        repulsive_tolerance=self.safe_distance,
+                        repulsive_threshold_decay=10.0
                     )
                     print("REPULSIVE Gradient: ", gradient)
                 else:
@@ -313,10 +307,6 @@ class SafeUnicycleControl(Node):
                     )
                     lin_vel = 0.0
 
-                    
-                print("------BEFORE:")
-                print("lin_vel: ", lin_vel)
-                print("ang_vel: ", ang_vel)
                 if not np.isnan(lin_vel) and not np.isnan(ang_vel):
                     lin_vel_x, ang_vel_z = unicycle_control_tools.scale_velocities(
                         lin_vel=lin_vel,

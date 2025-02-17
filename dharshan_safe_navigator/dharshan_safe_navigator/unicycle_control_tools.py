@@ -31,12 +31,14 @@ def scale_velocities(lin_vel, ang_vel, max_lin_vel, max_ang_vel):
     # cap velocity to maintain curvature
     if lin_vel != 0.0 and ang_vel != 0.0:
         scaling_factor = min(max_lin_vel / abs(lin_vel), max_ang_vel / abs(ang_vel), 1)
-    else:
-        if lin_vel == 0.0:
-            scaling_factor = max_ang_vel / abs(ang_vel)
+    elif ang_vel != 0.0:
+        scaling_factor = max_ang_vel / abs(ang_vel)
 
-        else:
-            scaling_factor = max_lin_vel / abs(lin_vel)
+    elif lin_vel != 0.0:
+        scaling_factor = max_lin_vel / abs(lin_vel)
+
+    else:
+        scaling_factor = 1.0
     
 
     lin_vel = lin_vel * scaling_factor
@@ -88,7 +90,7 @@ def basic_unicycle_twist(robot_pose, goal_pose, k_lin=1.0, k_ang=1.0):
             lin_vel = 0.0
             ang_vel = k_ang * angle_diff
         else:
-            lin_vel = 2 * k_lin * np.sqrt((goal_pose.x - robot_pose.x)**2 + (goal_pose.y - current_pose.y)**2)
+            lin_vel = 2 * k_lin * np.sqrt((goal_pose[0] - robot_pose[0])**2 + (goal_pose[1] - robot_pose[1])**2)
             ang_vel = 0.0
 
         return lin_vel, ang_vel
