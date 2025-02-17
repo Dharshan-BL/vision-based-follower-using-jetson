@@ -32,6 +32,9 @@ def generate_launch_description():
     yolo_model = DeclareLaunchArgument('yolo_model', default_value=default_yolo_model)
     ld.add_action(yolo_model)
 
+    score_threshold = DeclareLaunchArgument('score_threshold', default_value='0.75')
+    ld.add_action(score_threshold)
+
     yolo_3d_launch = GroupAction(
         actions=[
             IncludeLaunchDescription(
@@ -55,13 +58,16 @@ def generate_launch_description():
     ld.add_action(yolo_3d_launch)        
 
 
-    safe_unicycle_local_nav_node = Node(
+    obj_pose_pubslisher = Node(
         package='dharshan_yolo_pose_detection',
         executable='pose_estimate_publisher.py',
         name='pose_estimate_publisher',
         namespace = LaunchConfiguration('namespace'),
         parameters = [
-            {'use_sim_time': LaunchConfiguration('use_sim_time')},
+            {
+                'use_sim_time': LaunchConfiguration('use_sim_time'),
+                'score_threshold': LaunchConfiguration('score_threshold'),
+                },
         ],
         remappings=[
             ('/tf', 'tf'),
@@ -70,6 +76,6 @@ def generate_launch_description():
         output='screen',
         emulate_tty=True,
     )
-    ld.add_action(safe_unicycle_local_nav_node)
+    ld.add_action(obj_pose_pubslisher)
 
     return ld
