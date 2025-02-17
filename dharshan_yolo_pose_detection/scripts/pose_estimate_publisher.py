@@ -91,7 +91,7 @@ class PoseEstimatePublisher(Node):
 
 
     def __publish_obj_pose(self):
-        print("publishing obj pose")
+        # print("publishing obj pose")
         self.obj_pose_pub.publish(self.obj_pose)
    
 
