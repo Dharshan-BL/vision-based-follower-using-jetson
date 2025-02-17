@@ -27,11 +27,11 @@ def generate_launch_description():
     default_yolo_model = os.path.join(
         get_package_share_directory('dharshan_yolo_pose_detection'),
         'config',
-        'yolov11_100_dharshan.pt'
+        'yolov11l_100_dharshan.pt'
     )
     yolo_model = DeclareLaunchArgument('yolo_model', default_value=default_yolo_model)
     ld.add_action(yolo_model)
-    
+
     yolo_3d_launch = GroupAction(
         actions=[
             IncludeLaunchDescription(
