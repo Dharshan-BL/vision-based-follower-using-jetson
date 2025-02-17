@@ -55,7 +55,8 @@ class PoseEstimatePublisher(Node):
             msg_type=DetectionArray,
             topic='detections_3d',
             callback=self.__detections_callback,
-            qos_profile=self.qos
+            qos_profile=self.qos,
+            callback_group=MutuallyExclusiveCallbackGroup()
         )
 
         # TF Listener
@@ -69,7 +70,7 @@ class PoseEstimatePublisher(Node):
         # # msg to be published
         self.obj_pose = PoseStamped()
 
-        self.create_timer(1.0 / self.rate, self.__publish_obj_pose, callback_group=MutuallyExclusiveCallbackGroup())
+        self.create_timer(1.0/self.rate, self.__publish_obj_pose, callback_group=MutuallyExclusiveCallbackGroup())
     
                 
     def __detections_callback(self, msg: DetectionArray):
