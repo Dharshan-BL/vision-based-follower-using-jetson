@@ -23,13 +23,23 @@ def generate_launch_description():
     cmd_vel_topic = DeclareLaunchArgument('cmd_vel_topic', default_value='cmd_vel', description='Command velocity topic of the robot')
     ld.add_action(cmd_vel_topic)
 
+    goal_threshold = DeclareLaunchArgument('goal_threshold', default_value='1.0')
+    ld.add_action(goal_threshold)
+
+    repulsive_threshold_decay = DeclareLaunchArgument('repulsive_threshold_decay', default_value='10.0')
+    ld.add_action(repulsive_threshold_decay)
+
     safe_unicycle_local_nav_node = Node(
         package='dharshan_safe_navigator',
         executable='safe_unicycle_local_nav.py',
         name='safe_unicycle_local_nav',
         namespace = LaunchConfiguration('namespace'),
         parameters = [
-            {'use_sim_time': LaunchConfiguration('use_sim_time')},
+            {
+                'use_sim_time': LaunchConfiguration('use_sim_time'),
+                'goal_threshold': LaunchConfiguration('goal_threshold'),
+                'repulsive_threshold_decay': LaunchConfiguration('repulsive_threshold_decay'),
+                },
         ],
         remappings=[
             ('goal_pose', LaunchConfiguration('goal_pose_topic')),

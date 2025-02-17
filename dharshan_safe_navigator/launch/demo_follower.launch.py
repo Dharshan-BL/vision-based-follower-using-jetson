@@ -15,11 +15,12 @@ def generate_launch_description():
     ld.add_action(namespace)
     use_sim_time = DeclareLaunchArgument('use_sim_time', default_value='false')
     ld.add_action(use_sim_time)
-    world = DeclareLaunchArgument('world', default_value='empty', description='World name')
-    ld.add_action(world)
     
-    goal_pose_topic = DeclareLaunchArgument('goal_pose_topic', default_value='goal_pose', description='Pose topic of the robot')
-    ld.add_action(goal_pose_topic)
+    goal_threshold = DeclareLaunchArgument('goal_threshold', default_value='1.0')
+    ld.add_action(goal_threshold)
+
+    repulsive_threshold_decay = DeclareLaunchArgument('repulsive_threshold_decay', default_value='10.0')
+    ld.add_action(repulsive_threshold_decay)    
 
     safe_unicycle_local_nav_launch = GroupAction(
         actions=[
@@ -37,6 +38,8 @@ def generate_launch_description():
             'goal_pose_topic': 'obj_pose',
             'scan_topic': f'front_laser/scan',
             'cmd_vel_topic': f'ctrl/cmd_vel',
+            'goal_threshold': LaunchConfiguration('goal_threshold'),
+            'repulsive_threshold_decay': LaunchConfiguration('repulsive_threshold_decay'),
         },
     )
     ld.add_action(safe_unicycle_local_nav_launch)

@@ -49,6 +49,7 @@ class SafeUnicycleControl(Node):
             self.declare_parameter('max_linear_speed', 0.5)
             self.declare_parameter('max_angular_speed', 1.5)
             self.declare_parameter('goal_threshold', 2.0)
+            self.declare_parameter('repulsive_threshold_decay', 10.0)
         except Exception as e:
             pass
 
@@ -61,6 +62,7 @@ class SafeUnicycleControl(Node):
         self.max_angular_speed = self.get_parameter('max_angular_speed').value
         self.scan_frame = self.get_parameter('scan_frame').value         
         self.goal_threshold = self.get_parameter('goal_threshold').value           
+        self.repulsive_threshold_decay = self.get_parameter('repulsive_threshold_decay').value
 
         # gains
         self.lin_gain = 0.5
@@ -124,6 +126,7 @@ class SafeUnicycleControl(Node):
         # Create publisher
         self.cmd_vel_pub = self.create_publisher(Twist, 'cmd_vel', self.qos)
         self.laser_scan_pub = self.create_publisher(LaserScan, 'avg_laser_scan', self.qos)
+        self.obstacle_pose_pub = self.create_publisher(PoseStamped, 'obstacle_pose', self.qos)
 
         # # msg to be published
         self.cmd_vel = Twist()
@@ -169,7 +172,7 @@ class SafeUnicycleControl(Node):
                 
                 avg_laser_data = self.laser_scan_averaging(laser_data)
 
-                # self.laser_scan_pub.publish(avg_laser_data)
+                self.laser_scan_pub.publish(avg_laser_data)
 
                 if self.T_scan_to_target_frame is not None:                
                     ranges = np.array(avg_laser_data.ranges)
@@ -246,7 +249,6 @@ class SafeUnicycleControl(Node):
     def safe_control(self):
         self.cmd_vel = Twist()  
         if ((self.goal_pose_x is not None and self.goal_pose_y is not None)):
-            
             distance_to_goal = np.sqrt((self.goal_pose_x - self.robot_pose_x)**2 + (self.goal_pose_y - self.robot_pose_y)**2)
             print(f"~~~~~{self.goal_threshold}Distance to goal: {distance_to_goal}")
             if distance_to_goal > self.goal_threshold:
@@ -254,13 +256,18 @@ class SafeUnicycleControl(Node):
                 self.queue_lock.acquire()
                 print(f"~~~~~Obstacle: {self.obstacle_x}, {self.obstacle_y}")
                 if self.obstacle_x is not None and self.obstacle_y is not None:           
+                    obstacle_pose = PoseStamped()
+                    obstacle_pose.header.frame_id = "base_link"
+                    obstacle_pose.pose.position.x = self.obstacle_x
+                    obstacle_pose.pose.position.y = self.obstacle_y
+                    self.obstacle_pose_pub.publish(obstacle_pose)
                     gradient = -APF_tools.gradient_navigation_potential(
                         position=[self.robot_pose_x, self.robot_pose_y],
                         goal=[self.goal_pose_x, self.goal_pose_y],
                         obstacle=[self.obstacle_x, self.obstacle_y],
                         attractive_strength=1.0,
                         repulsive_tolerance=self.safe_distance,
-                        repulsive_threshold_decay=10.0
+                        repulsive_threshold_decay=self.repulsive_threshold_decay
                     )
                     print("REPULSIVE Gradient: ", gradient)
                 else:
