@@ -205,6 +205,12 @@ class SafeUnicycleControl(Node):
                         min_angle = avg_laser_data.angle_min + min_index * avg_laser_data.angle_increment
                         self.obstacle_x = min_range * np.cos(min_angle)
                         self.obstacle_y = min_range * np.sin(min_angle)
+
+                        obstacle_pose = PoseStamped()
+                        obstacle_pose.header.frame_id = "base_link"
+                        obstacle_pose.pose.position.x = self.obstacle_x
+                        obstacle_pose.pose.position.y = self.obstacle_y
+                        self.obstacle_pose_pub.publish(obstacle_pose)
             
     def __scan_callback(self, msg: LaserScan): 
         if self.target_frame is not None:
@@ -256,11 +262,7 @@ class SafeUnicycleControl(Node):
                 self.queue_lock.acquire()
                 print(f"~~~~~Obstacle: {self.obstacle_x}, {self.obstacle_y}")
                 if self.obstacle_x is not None and self.obstacle_y is not None:           
-                    obstacle_pose = PoseStamped()
-                    obstacle_pose.header.frame_id = "base_link"
-                    obstacle_pose.pose.position.x = self.obstacle_x
-                    obstacle_pose.pose.position.y = self.obstacle_y
-                    self.obstacle_pose_pub.publish(obstacle_pose)
+                    
                     gradient = -APF_tools.gradient_navigation_potential(
                         position=[self.robot_pose_x, self.robot_pose_y],
                         goal=[self.goal_pose_x, self.goal_pose_y],
