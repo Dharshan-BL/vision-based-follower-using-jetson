@@ -67,12 +67,13 @@ class PoseEstimatePublisher(Node):
 
         # # msg to be published
         self.obj_pose = PoseStamped()
+
+        self.create_timer(1.0 / self.rate, self.__publish_obj_pose)
     
                 
     def __detections_callback(self, msg: DetectionArray):
 
         detections = msg.detections
-        self.obj_pose = PoseStamped()
         self.obj_pose.header = msg.header
         self.obj_pose.header.frame_id = "base_link"
         if detections:
@@ -83,7 +84,8 @@ class PoseEstimatePublisher(Node):
                     self.obj_pose.pose.position.z = detection.bbox3d.center.position.z
                     self.obj_pose.pose.orientation = detection.bbox3d.center.orientation
                     break
-        print("publishing " , (self.obj_pose))
+
+    def __publish_obj_pose(self):
         self.obj_pose_pub.publish(self.obj_pose)
    
 
